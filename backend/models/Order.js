@@ -1,3 +1,4 @@
+// models/Order.js
 import mongoose from 'mongoose';
 
 const OrderSchema = new mongoose.Schema({
@@ -28,6 +29,4 @@ const OrderSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model('Order', OrderSchema);
-
-export default OrderSchema;
+export default mongoose.model('Order', OrderSchema);
