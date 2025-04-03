@@ -2,7 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import userRoutes from './routes/userRoutes'; // Your route file for users
+import userRoutes from './routes/userRoutes.js'; // Your route file for users
 
 // Load environment variables
 dotenv.config();

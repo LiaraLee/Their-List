@@ -1,36 +1,23 @@
-import express from 'express';
-import User from '../models/User.js';
-import protect from '../middleware/auth.js';  // Import the protect middleware
+// middleware/auth.js
+import jwt from 'jsonwebtoken';
 
-const router = express.Router();
+const protect = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1]; // Expecting "Bearer <token>"
 
-// Register a user
-router.post('/register', async (req, res) => {
-  // Registration logic here...
-});
+  if (!token) {
+    return res.status(401).json({ message: 'No token, authorization denied' });
+  }
 
-// Login a user
-router.post('/login', async (req, res) => {
-  // Login logic here...
-});
-
-// Get the user profile (Protected route)
-router.get('/profile', protect, async (req, res) => {  // Use the protect middleware to require authentication
   try {
-    const user = await User.findById(req.user);  // Access the user ID attached to req.user by the middleware
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.status(200).json({
-      name: user.name,
-      email: user.email,
-      profile: user.profile,
-    });
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded.userId; // Attach the user ID to the request object
+    next(); // Call next middleware/route handler
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(401).json({ message: 'Token is not valid' });
   }
-});
+};
 
-export default router;
+export default protect;
+
