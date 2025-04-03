@@ -26,6 +26,12 @@ app.all('*', (req, res) => {
   res.status(404).send({ message: 'Route not found' });
 });
 
+// Error handling middleware (general errors)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
+});
+
 // Server listen
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Server running on port ${port}`));
