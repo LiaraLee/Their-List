@@ -1,7 +1,8 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs'; // Use bcryptjs for hashing passwords
 import User from '../models/User.js';
+import protect from '../middleware/auth.js';  // Import the authentication middleware
 
 const router = express.Router();
 
@@ -16,10 +17,18 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // Create a new user
-    const user = new User({ name, email, password });
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Save user to database
+    // Create a new user with the hashed password
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword, // Save the hashed password
+    });
+
+    // Save user to the database
     await user.save();
 
     // Send response
@@ -41,8 +50,8 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Check password
-    const isMatch = await user.matchPassword(password);
+    // Compare passwords
+    const isMatch = await bcrypt.compare(password, user.password); // Use bcrypt to compare hashed passwords
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
@@ -61,20 +70,10 @@ router.post('/login', async (req, res) => {
 });
 
 // Get user profile route (Protected)
-router.get('/profile', async (req, res) => {
-  const token = req.headers.authorization?.split(' ')[1]; // Expecting "Bearer <token>"
-
-  if (!token) {
-    return res.status(401).json({ message: 'No token, authorization denied' });
-  }
-
+router.get('/profile', protect, async (req, res) => {  // Use the protect middleware here
   try {
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
-
-    // Find user by ID
-    const user = await User.findById(userId);
+    // Find user by ID (The user ID is available from req.user as set by the middleware)
+    const user = await User.findById(req.user);  // Access the user ID attached to req.user
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
