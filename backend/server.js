@@ -4,24 +4,25 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import orderRoutes from './routes/orderRoutes.js'; // Import the order-related routes
-import webhookRoutes from './routes/webhooks.js';
+import webhookHandler from './routes/webhooks.js';
+
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
+app.post('/webhook', express.raw({ type: 'application/json' }), (req, res) => webhookHandler(req, res));
 
 // Middleware
 app.use(cors());
 app.use(express.json()); // Built-in Express JSON parser
-app.use('/webhook', webhookRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log('MongoDB connection error:', err));
 
-  app.use('/api/users', authRoutes);
+app.use('/api/users', authRoutes);
 app.use('/api/orders', orderRoutes); // Order-related routes (placing orders, viewing orders, etc.)
 
 // Error handling for invalid routes (uses `req`)

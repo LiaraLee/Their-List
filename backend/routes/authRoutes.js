@@ -72,5 +72,17 @@ router.get('/profile', protect, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
+// TEMPORARY: Promote a user to admin by email
+router.put('/promote', async (req, res) => {
+    const { email } = req.body;
+    try {
+      const user = await User.findOneAndUpdate({ email }, { isAdmin: true }, { new: true });
+      if (!user) return res.status(404).json({ message: 'User not found' });
+      res.status(200).json({ message: `${user.email} is now an admin`, user });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Error promoting user' });
+    }
+  });
+  
 export default router;
