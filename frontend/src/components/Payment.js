@@ -1,47 +1,59 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import axios from "axios";
 
-const Payment = () => {
-  const [paymentInfo, setPaymentInfo] = useState({
-    cardNumber: "",
-    expirationDate: "",
-    cvv: "",
-  });
+const stripePromise = loadStripe("your_publishable_key_here"); // Replace with your Stripe public key
 
-  const handleSubmit = (e) => {
+const CheckoutForm = ({ totalAmount, onSuccess }) => {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [clientSecret, setClientSecret] = useState("");
+
+  useEffect(() => {
+    const fetchPaymentIntent = async () => {
+      try {
+        const { data } = await axios.post("http://localhost:5000/api/payments/create-payment-intent", { amount: totalAmount });
+        setClientSecret(data.clientSecret);
+      } catch (error) {
+        console.error("Error creating payment intent:", error);
+      }
+    };
+
+    if (totalAmount > 0) fetchPaymentIntent();
+  }, [totalAmount]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Process payment logic
-    console.log("Payment Info: ", paymentInfo);
+    if (!stripe || !elements) return;
+
+    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: { card: elements.getElement(CardElement) },
+    });
+
+    if (error) {
+      console.error("Payment failed:", error.message);
+      alert("Payment failed!");
+    } else {
+      alert("Payment successful!");
+      onSuccess(paymentIntent.id);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Payment</h2>
-      <label>
-        Card Number:
-        <input
-          type="text"
-          value={paymentInfo.cardNumber}
-          onChange={(e) => setPaymentInfo({ ...paymentInfo, cardNumber: e.target.value })}
-        />
-      </label>
-      <label>
-        Expiration Date:
-        <input
-          type="text"
-          value={paymentInfo.expirationDate}
-          onChange={(e) => setPaymentInfo({ ...paymentInfo, expirationDate: e.target.value })}
-        />
-      </label>
-      <label>
-        CVV:
-        <input
-          type="text"
-          value={paymentInfo.cvv}
-          onChange={(e) => setPaymentInfo({ ...paymentInfo, cvv: e.target.value })}
-        />
-      </label>
-      <button type="submit">Submit Payment</button>
+      <h2>Enter Payment Details</h2>
+      <CardElement />
+      <button type="submit" disabled={!stripe}>Pay ${totalAmount}</button>
     </form>
+  );
+};
+
+const Payment = ({ totalAmount }) => {
+  return (
+    <Elements stripe={stripePromise}>
+      <CheckoutForm totalAmount={totalAmount} onSuccess={(paymentId) => console.log("Payment successful!", paymentId)} />
+    </Elements>
   );
 };
 

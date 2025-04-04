@@ -4,6 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import userRoutes from './routes/auth.js'; // Route for user-related actions like authentication
 import orderRoutes from './routes/orderRoutes.js'; // Import the order-related routes
+import webhookRoutes from './routes/webhooks.js';
 
 // Load environment variables
 dotenv.config();
@@ -13,6 +14,7 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json()); // Built-in Express JSON parser
+app.use('/webhook', webhookRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
