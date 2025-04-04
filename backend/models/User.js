@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   profile: { type: Object, default: {} },  // This can store user profile details
+  isAdmin: { type: Boolean, default: false }, // Admin flag
   createdAt: { type: Date, default: Date.now }
 });
 
