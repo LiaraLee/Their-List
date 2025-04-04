@@ -3,11 +3,11 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
-import protect from '../middleware/auth.js';
+import protect from '../middleware/auth.js';  // Import protect middleware
 
 const router = express.Router();
 
-// Register route
+// Register route (No authentication needed for registering a user)
 router.post('/register', async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -34,7 +34,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Login route (Same as auth.js)
+// Login route (No authentication needed for logging in)
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -60,4 +60,18 @@ router.post('/login', async (req, res) => {
   }
 });
 
-export default router;  // This is key, ensure `export default` is used
+// Protected profile route (only accessible by authenticated users)
+router.get('/profile', protect, async (req, res) => {  // Using the protect middleware here
+  try {
+    const user = await User.findById(req.user.id);  // req.user is attached by protect middleware
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(user);  // Send back the user's profile information
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+export default router;  // Ensure export default is used
