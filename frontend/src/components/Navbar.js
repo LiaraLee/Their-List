@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
@@ -16,6 +17,11 @@ const Navbar = () => {
           {localStorage.getItem("token") ? (
             <>
               <Link className="btn btn-outline-light mx-2" to="/dashboard">Dashboard</Link>
+              <Link className="btn btn-outline-light mx-2" to="/orders">Orders</Link>
+              <Link className="btn btn-outline-light mx-2" to="/profile">Profile</Link>
+              <Link className="btn btn-outline-light mx-2" to="/orderform">Create Order</Link>
+              <Link className="btn btn-outline-light mx-2" to="/orderlist">View Orders</Link>
+              <Link className="btn btn-outline-light mx-2" to="/payment">Payment</Link>
               <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
             </>
           ) : (

@@ -6,6 +6,7 @@ import Register from "./pages/Register.js";
 import Dashboard from "./pages/Dashboard.js";
 import Orders from "./pages/Orders.js";
 import Navbar from "./components/Navbar.js";
+import ProtectedRoute from "./components/ProtectedRoute.js"; // Import ProtectedRoute
 
 // Main App component
 function App() {
@@ -18,8 +19,24 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/orders" element={<Orders />} />
+
+          {/* Protected Routes */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route 
+            path="/orders" 
+            element={
+              <ProtectedRoute>
+                <Orders />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </div>
     </Router>
