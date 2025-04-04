@@ -21,9 +21,17 @@ mongoose.connect(process.env.MONGO_URI)
 // API routes
 app.use('/api/users', userRoutes); // Your user routes for authentication, profile, etc.
 
-// Error handling for invalid routes
+// Error handling for invalid routes (uses `req`)
 app.all('*', (req, res) => {
-  res.status(404).send({ message: 'Route not found' });
+  res.status(404).send({
+    message: `Route not found: ${req.method} ${req.originalUrl}`
+  });
+});
+
+// General error handler (optional but good to have)
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ message: 'Something went wrong!' });
 });
 
 // Server listen
