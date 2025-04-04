@@ -16,7 +16,7 @@ function App() {
       <div className="App">
         <Routes>
           {/* Define routes and associate them with the correct components */}
-          <Route path="/" element={<Home />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 

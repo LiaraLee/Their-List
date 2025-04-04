@@ -22,7 +22,7 @@ const protect = (req, res, next) => {
 };
 
 // Place Order
-router.post('/placeOrder', protect, async (req, res) => {
+router.post('/placeOrder.com', protect, async (req, res) => {
   const { restaurant, items, totalAmount, token } = req.body;
 
   try {

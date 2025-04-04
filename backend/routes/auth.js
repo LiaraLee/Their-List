@@ -41,7 +41,7 @@ router.post('/register', async (req, res) => {
 });
 
 // Login route
-router.post('/login', async (req, res) => {
+router.post('/login.js', async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -59,10 +59,10 @@ router.post('/login', async (req, res) => {
 
     // Generate JWT token (including userId and name in the token payload)
     const token = jwt.sign(
-      { userId: user._id, name: user.name }, // Add 'name' here
+      { userId: user._id, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
-    );
+    );    
 
     // Send response with token
     res.status(200).json({ message: 'Login successful', token });
@@ -72,7 +72,7 @@ router.post('/login', async (req, res) => {
   }
 });
 // Get user profile route (Protected)
-router.get('/profile', protect, async (req, res) => {
+router.get('/profile.js', protect, async (req, res) => {
   try {
     // The userId and name are now attached to req.user in the middleware
     const { userId, name } = req.user;

@@ -2,7 +2,8 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import userRoutes from './routes/userRoutes.js'; // Your route file for users
+import userRoutes from './routes/auth.js'; // Route for user-related actions like authentication
+import orderRoutes from './routes/orderRoutes.js'; // Import the order-related routes
 
 // Load environment variables
 dotenv.config();
@@ -19,7 +20,8 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.log('MongoDB connection error:', err));
 
 // API routes
-app.use('/api/users', userRoutes); // Your user routes for authentication, profile, etc.
+app.use('/api/users', userRoutes); // User-related routes (authentication, profile, etc.)
+app.use('/api/orders', orderRoutes); // Order-related routes (placing orders, viewing orders, etc.)
 
 // Error handling for invalid routes (uses `req`)
 app.all('*', (req, res) => {
