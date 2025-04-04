@@ -14,6 +14,13 @@ router.post('/', protect, async (req, res) => {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
+    // Additional validation for items (ensure each item has required properties)
+    for (const item of items) {
+      if (!item.name || !item.quantity || !item.price) {
+        return res.status(400).json({ message: 'Each item must have a name, quantity, and price' });
+      }
+    }
+
     // Create new order
     const order = new Order({
       user: req.user.userId, // Get userId from protected middleware (updated to 'user')
@@ -84,12 +91,19 @@ router.put('/admin/orders/:id', protect, async (req, res) => {
 // User Route: Get user orders
 router.get('/', protect, async (req, res) => {
   try {
-    const orders = await Order.find({ user: req.user.userId }).populate('restaurant'); // Fetch orders for the logged-in user
+    // Fetch orders for the logged-in user
+    const orders = await Order.find({ user: req.user.userId }).populate('restaurant'); 
+
+    if (orders.length === 0) {
+      return res.status(404).json({ message: 'No orders found for this user.' });
+    }
+
     res.status(200).json({ orders });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error while fetching orders' });
   }
 });
 
 export default router;
+

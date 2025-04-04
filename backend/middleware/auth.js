@@ -2,28 +2,36 @@
 import jwt from 'jsonwebtoken';
 
 const protect = (req, res, next) => {
-  // Get the token from the Authorization header, expecting format "Bearer <token>"
-  const token = req.headers.authorization?.split(' ')[1];
+  let token;
 
-  // If no token, return 401 (Unauthorized)
-  if (!token) {
-    return res.status(401).json({ message: 'No token, authorization denied' });
+  // Check for token in the Authorization header
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      // Get token from header (Bearer <token>)
+      token = req.headers.authorization.split(' ')[1];
+
+      // Decode and verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Attach user to the request object (make sure your JWT contains the userId, name, and isAdmin)
+      req.user = { 
+        userId: decoded.userId, 
+        name: decoded.name,
+        isAdmin: decoded.isAdmin, // Add isAdmin to the request object
+      };
+
+      // Call the next middleware or route handler
+      next();
+    } catch (error) {
+      console.error(error);
+      res.status(401).json({ message: 'Not authorized, token failed' });
+    }
   }
 
-  try {
-    // Verify the token with the secret key
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Attach both userId and name from the decoded token to the request object
-    req.user = { userId: decoded.userId, name: decoded.name };
-
-    // Call the next middleware or route handler
-    next();
-  } catch (err) {
-    console.error(err);
-    // If token verification fails, return 401 (Unauthorized)
-    res.status(401).json({ message: 'Token is not valid' });
+  if (!token) {
+    return res.status(401).json({ message: 'Not authorized, no token' });
   }
 };
 
 export default protect;
+
