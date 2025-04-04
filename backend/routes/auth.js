@@ -57,10 +57,12 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1h',
-    });
+    // Generate JWT token (including userId and name in the token payload)
+    const token = jwt.sign(
+      { userId: user._id, name: user.name }, // Add 'name' here
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
 
     // Send response with token
     res.status(200).json({ message: 'Login successful', token });
@@ -69,17 +71,19 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
 // Get user profile route (Protected)
-router.get('/profile', protect, async (req, res) => {  // Use the protect middleware here
+router.get('/profile', protect, async (req, res) => {
   try {
-    // Find user by ID (The user ID is available from req.user as set by the middleware)
-    const user = await User.findById(req.user);  // Access the user ID attached to req.user
+    // The userId and name are now attached to req.user in the middleware
+    const { userId, name } = req.user;
+
+    // Find the user by ID (use userId from the decoded JWT token)
+    const user = await User.findById(userId); // We can use userId from req.user here
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Return user profile details
+    // Return user profile details (name, email, and other profile info)
     res.status(200).json({ name: user.name, email: user.email, profile: user.profile });
   } catch (err) {
     console.error(err);
