@@ -1,5 +1,3 @@
-// models/Order.js
-// models/Order.js
 import mongoose from 'mongoose';
 
 const OrderSchema = new mongoose.Schema(
@@ -10,10 +8,9 @@ const OrderSchema = new mongoose.Schema(
       required: true,
     },
     restaurant: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Restaurant', // Reference to the Restaurant model (assumed Restaurant model exists)
+      type: String, // TODO: Replace with ObjectId + ref once Restaurant model is added
       required: true,
-    },
+    },    
     items: [
       {
         name: String,
