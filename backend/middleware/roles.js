@@ -36,7 +36,24 @@ const roles = {
   const hasRole = (role, requiredRole) => {
     return role === requiredRole;
   };
-  
-  // Export roles and permissions
-  export { roles, permissions, hasPermission, hasRole };
-  
+
+  // Middleware to check if the user is an admin
+const adminOnly = (req, res, next) => {
+  if (!req.user || req.user.isAdmin !== true) {
+    return res.status(403).json({ message: 'Access denied. Admins only.' });
+  }
+  next();
+};
+
+// Middleware to check for specific permissions
+const requirePermission = (permission) => (req, res, next) => {
+  const userRole = req.user?.isAdmin ? roles.ADMIN : roles.USER;
+
+  if (!hasPermission(userRole, permission)) {
+    return res.status(403).json({ message: `Permission "${permission}" denied.` });
+  }
+
+  next();
+};
+
+export { roles, permissions, hasPermission, hasRole, adminOnly, requirePermission };

@@ -1,6 +1,7 @@
 import express from 'express';
 import Order from '../models/Order.js';
 import protect from '../middleware/auth.js'; // Protect the route so only authenticated users can place orders
+import { adminOnly, requirePermission } from '../middleware/roles.js';
 
 const router = express.Router();
 
@@ -40,53 +41,50 @@ router.post('/', protect, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-
-// Admin Route: View all orders
-router.get('/admin/orders', protect, async (req, res) => {
-  try {
-    // Only allow admin to view all orders
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ message: 'Access denied. Admins only.' });
+//Protect the /admin/orders route so only
+router.get(
+  '/admin/orders',
+  protect,
+  adminOnly,
+  requirePermission('view_all_orders'),
+  async (req, res) => {
+    try {
+      const orders = await Order.find().populate('user').populate('restaurant');
+      res.status(200).json(orders);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Failed to fetch orders' });
     }
-
-    // Get all orders
-    const orders = await Order.find().populate('user').populate('restaurant'); // Populating user and restaurant details
-    res.status(200).json({ orders });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
   }
-});
+);
 
-// Admin Route: Update order status
-router.put('/admin/orders/:id', protect, async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
+router.put(
+  '/admin/orders/:id',
+  protect,
+  adminOnly,
+  requirePermission('update_order_status'),
+  async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
 
-  try {
-    // Only allow admin to update order status
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ message: 'Access denied. Admins only.' });
+    try {
+      if (!['pending', 'completed', 'cancelled'].includes(status)) {
+        return res.status(400).json({ message: 'Invalid status value' });
+      }
+
+      const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
+
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+
+      res.status(200).json({ message: 'Order status updated', order });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
     }
-
-    // Check if status is valid
-    if (!['pending', 'completed', 'cancelled'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status value' });
-    }
-
-    // Find and update the order status
-    const order = await Order.findByIdAndUpdate(id, { status }, { new: true });
-
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    res.status(200).json({ message: 'Order status updated', order });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
   }
-});
+);
 
 // User Route: Get user orders
 router.get('/', protect, async (req, res) => {
