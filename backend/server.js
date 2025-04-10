@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/authRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import webhookHandler from './routes/webhooks.js';
+import paymentRoutes from './routes/payment.js';
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), webhookHandler);
 
 app.use(cors());
 app.use(express.json());
+app.use('/api/payment', paymentRoutes);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
