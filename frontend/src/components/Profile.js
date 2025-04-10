@@ -12,7 +12,6 @@ const Profile = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Save user data (API request logic)
     console.log("Profile Updated: ", user);
   };
 

@@ -4,11 +4,11 @@ const OrderSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User', // Reference to the User model
+      ref: 'User',
       required: true,
     },
     restaurant: {
-      type: String, // TODO: Replace with ObjectId + ref once Restaurant model is added
+      type: String,
       required: true,
     },    
     items: [
@@ -40,7 +40,7 @@ const OrderSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // Automatically add createdAt and updatedAt fields
+    timestamps: true,
   }
 );
 

@@ -4,7 +4,6 @@ const OrderList = () => {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    // Fetch orders from an API (this is a mock example)
     const fetchOrders = async () => {
       const response = await fetch("/api/orders");
       const data = await response.json();

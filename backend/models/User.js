@@ -1,18 +1,15 @@
-// models/User.js
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
-// User Schema
 const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  profile: { type: Object, default: {} },  // This can store user profile details
-  isAdmin: { type: Boolean, default: false }, // Admin flag
+  profile: { type: Object, default: {} },
+  isAdmin: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
 
-// Password hashing before saving to database
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
 
@@ -21,7 +18,6 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
-// Password matching function
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

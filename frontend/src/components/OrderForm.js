@@ -10,7 +10,7 @@ const OrderForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Submit order logic here
+
     console.log("Order Submitted: ", orderDetails);
   };
 

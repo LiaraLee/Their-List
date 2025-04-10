@@ -1,4 +1,3 @@
-// routes/authRoutes.js
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
@@ -7,7 +6,6 @@ import protect from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Register user
 router.post('/register', async (req, res) => {
     const { name, email, password } = req.body;
   
@@ -19,7 +17,7 @@ router.post('/register', async (req, res) => {
         name,
         email: email.toLowerCase(),
         password
-      }); // 🔐 let .pre('save') do the hashing
+      });
       await user.save();
   
       res.status(201).json({ message: 'User registered successfully' });
@@ -28,28 +26,25 @@ router.post('/register', async (req, res) => {
       res.status(500).json({ message: 'Server error' });
     }
   });
-  
-// Login user
+
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
     if (!user) return res.status(400).json({ message: 'Invalid credentials' });
-    // Debugging: Log the password hash and entered password
     console.log('DB password hash:', user.password);
     console.log('Entered password:', password);
     
     const isMatch = await user.matchPassword(password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' }); 
-    // Debugging: Log the result of password comparison   
     console.log('Password match:', isMatch);
 
     const token = jwt.sign(
       {
         userId: user._id,
         name: user.name,
-        isAdmin: user.isAdmin || false, // fallback in case it's undefined
+        isAdmin: user.isAdmin || false,
       },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
@@ -62,7 +57,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Get user profile (protected)
 router.get('/profile', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId);

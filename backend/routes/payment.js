@@ -8,9 +8,8 @@ router.post('/create-payment-intent', protect, async (req, res) => {
   try {
     const { amount, currency = 'usd' } = req.body;
 
-    // Create a PaymentIntent with Stripe
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amount * 100, // Convert dollars to cents
+      amount: amount * 100,
       currency,
       metadata: { userId: req.user.userId },
     });

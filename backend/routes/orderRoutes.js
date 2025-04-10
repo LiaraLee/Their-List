@@ -1,38 +1,33 @@
 import express from 'express';
 import Order from '../models/Order.js';
-import protect from '../middleware/auth.js'; // Protect the route so only authenticated users can place orders
+import protect from '../middleware/auth.js';
 import { adminOnly, requirePermission } from '../middleware/roles.js';
 
 const router = express.Router();
 
-// Place an order (User Route)
 router.post('/', protect, async (req, res) => {
   const { restaurantId, items, totalAmount } = req.body;
 
   try {
-    // Validate order input (check for missing values)
     if (!restaurantId || !items || items.length === 0 || !totalAmount) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
-    // Additional validation for items (ensure each item has required properties)
     for (const item of items) {
       if (!item.name || !item.quantity || !item.price) {
         return res.status(400).json({ message: 'Each item must have a name, quantity, and price' });
       }
     }
 
-    // Create new order
     const order = new Order({
-      user: req.user.userId, // Get userId from protected middleware (updated to 'user')
-      restaurant: restaurantId, // Reference to restaurant ID
+      user: req.user.userId,
+      restaurant: restaurantId,
       items,
-      totalAmount, // Match the new field name from Order schema
-      status: 'pending', // Default status set to 'pending'
-      paymentStatus: 'unpaid', // Initially set to 'unpaid'
+      totalAmount,
+      status: 'pending',
+      paymentStatus: 'unpaid',
     });
 
-    // Save the order to the database
     await order.save();
 
     res.status(201).json({ message: 'Order placed successfully', order });
@@ -41,7 +36,7 @@ router.post('/', protect, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
-//Protect the /admin/orders route so only
+
 router.get(
   '/admin/orders',
   protect,
@@ -86,10 +81,9 @@ router.put(
   }
 );
 
-// User Route: Get user orders
 router.get('/', protect, async (req, res) => {
   try {
-    // Fetch orders for the logged-in user
+
     const orders = await Order.find({ user: req.user.userId }).populate('restaurant'); 
 
     if (orders.length === 0) {

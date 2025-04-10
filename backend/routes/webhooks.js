@@ -1,4 +1,3 @@
-// routes/webhooks.js
 import dotenv from 'dotenv';
 import Stripe from 'stripe';
 
@@ -6,7 +5,6 @@ dotenv.config();
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-// Export plain async function as Express handler
 export default async function webhookHandler(req, res) {
   const sig = req.headers["stripe-signature"];
 
