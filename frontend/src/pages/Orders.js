@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import { Link } from 'react-router-dom';
+
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY); // use your .env key here
 
@@ -95,11 +97,15 @@ const Orders = () => {
       <h2>Place Order</h2>
 
       {orderSuccess && (
-        <div className="alert alert-success mt-3">
-          🎉 Your order has been placed successfully!
-        </div>
-      )}
-
+  <>
+    <div className="alert alert-success mt-3">
+      🎉 Your order has been placed successfully!
+    </div>
+    <Link to="/my-orders" className="btn btn-outline-primary mt-3">
+      View My Orders
+    </Link>
+  </>
+)}
       {!orderSuccess && (
         <>
           <input
