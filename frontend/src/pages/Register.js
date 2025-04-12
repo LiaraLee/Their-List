@@ -1,6 +1,8 @@
 // src/pages/Register.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // For redirecting after registration
+import axios from 'axios';
+
 
 const Register = () => {
   const [name, setName] = useState('');
@@ -18,12 +20,10 @@ const Register = () => {
     }
 
     // Send registration request
-    const response = await fetch('/api/users/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name, email, password }),
+    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/register`, {
+      name,
+      email,
+      password,
     });
 
     if (response.ok) {

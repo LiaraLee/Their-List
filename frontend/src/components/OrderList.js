@@ -1,20 +1,31 @@
 import { useEffect, useState } from "react";
+import axios from 'axios';
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
     const fetchOrders = async () => {
-      const response = await fetch("/api/orders");
-      const data = await response.json();
-      setOrders(data);
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+  
+        // If your backend returns { orders: [...] }
+        setOrders(response.data.orders);
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+      }
     };
+  
     fetchOrders();
-  }, []);
+  }, []);  
 
   return (
     <div>
-      <h2>Your Orders</h2>
+      <h2>My Orders</h2>
       <ul>
   {orders.map((order) => (
     <li key={order._id}>

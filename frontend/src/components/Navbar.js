@@ -20,7 +20,7 @@ const Navbar = () => {
               <Link className="btn btn-outline-light mx-2" to="/dashboard">Dashboard</Link>
               <Link className="btn btn-outline-light mx-2" to="/orders">Place Order</Link>
               <Link className="btn btn-danger" onClick={handleLogout}>Logout</Link>
-              {/* <Link to="/my-orders">My Orders</Link> */}
+              <Link to="/my-orders">My Orders</Link>
             </>
           ) : (
             <>

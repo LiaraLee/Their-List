@@ -13,7 +13,7 @@ const CheckoutForm = ({ totalAmount, onSuccess }) => {
   useEffect(() => {
     const fetchPaymentIntent = async () => {
       try {
-        const { data } = await axios.post("http://localhost:5000/api/payments/create-payment-intent", { amount: totalAmount });
+        const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/register`, { amount: totalAmount });
         setClientSecret(data.clientSecret);
       } catch (error) {
         console.error("Error creating payment intent:", error);

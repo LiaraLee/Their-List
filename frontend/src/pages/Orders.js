@@ -61,7 +61,7 @@ const Orders = () => {
 
   const handlePaymentSuccess = async (paymentId) => {
     try {
-      await axios.post("http://localhost:5000/api/orders", {
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, {
         restaurant,
         items,
         totalAmount,

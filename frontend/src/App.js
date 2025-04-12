@@ -7,6 +7,8 @@ import Dashboard from "./pages/Dashboard.js";
 import Orders from "./pages/Orders.js";
 import Navbar from "./components/Navbar.js";
 import ProtectedRoute from "./components/ProtectedRoute.js";
+import OrderList from "./components/OrderList.js";
+import "./App.css";
 
 function App() {
   return (
@@ -33,6 +35,14 @@ function App() {
               <ProtectedRoute>
                 <Orders />
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/my-orders"
+            element={
+          <ProtectedRoute>
+            <OrderList />
+          </ProtectedRoute>
             }
           />
         </Routes>
