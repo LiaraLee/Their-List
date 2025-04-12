@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const isLoggedIn = localStorage.getItem("token");
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -12,17 +13,14 @@ const Navbar = () => {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container">
-        <Link className="navbar-brand" to="/">FoodChain</Link>
+        <Link className="navbar-brand" to="/home">FoodChain</Link>
         <div>
-          {localStorage.getItem("token") ? (
+          {isLoggedIn ? (
             <>
               <Link className="btn btn-outline-light mx-2" to="/dashboard">Dashboard</Link>
-              <Link className="btn btn-outline-light mx-2" to="/orders">Orders</Link>
-              <Link className="btn btn-outline-light mx-2" to="/profile">Profile</Link>
-              <Link className="btn btn-outline-light mx-2" to="/orderform">Create Order</Link>
-              <Link className="btn btn-outline-light mx-2" to="/orderlist">View Orders</Link>
-              <Link className="btn btn-outline-light mx-2" to="/payment">Payment</Link>
-              <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
+              <Link className="btn btn-outline-light mx-2" to="/orders">Place Order</Link>
+              <Link className="btn btn-danger" onClick={handleLogout}>Logout</Link>
+              {/* <Link to="/my-orders">My Orders</Link> */}
             </>
           ) : (
             <>
