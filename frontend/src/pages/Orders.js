@@ -3,7 +3,7 @@ import axios from "axios";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 
-const stripePromise = loadStripe("your_publishable_key_here"); // Replace with your Stripe public key
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY); // use your .env key here
 
 const CheckoutForm = ({ restaurant, items, totalAmount, onSuccess }) => {
   const stripe = useStripe();
@@ -14,9 +14,13 @@ const CheckoutForm = ({ restaurant, items, totalAmount, onSuccess }) => {
     const fetchPaymentIntent = async () => {
       try {
         const { data } = await axios.post(
-          "http://localhost:5000/api/payments/create-payment-intent",
+          `${import.meta.env.VITE_API_URL}/api/payment/create-payment-intent`,
           { amount: totalAmount },
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
         );
         setClientSecret(data.clientSecret);
       } catch (error) {
@@ -40,8 +44,7 @@ const CheckoutForm = ({ restaurant, items, totalAmount, onSuccess }) => {
       console.error("Payment failed:", error.message);
       alert("Payment failed!");
     } else {
-      alert("Payment successful!");
-      onSuccess(paymentIntent.id);
+      onSuccess(paymentIntent.id); // Notify parent of success
     }
   };
 
@@ -55,20 +58,29 @@ const CheckoutForm = ({ restaurant, items, totalAmount, onSuccess }) => {
 
 const Orders = () => {
   const [restaurant, setRestaurant] = useState("");
-  const [items, setItems] = useState([]);
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [items, setItems] = useState([]); // still placeholder; not in use yet
+  const [totalAmount, setTotalAmount] = useState(9.99); // sample value
   const [isCheckout, setIsCheckout] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false); // NEW
 
   const handlePaymentSuccess = async (paymentId) => {
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/api/orders`, {
-        restaurant,
-        items,
-        totalAmount,
-        paymentId,
-      }, { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } });
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/orders`,
+        {
+          restaurant,
+          items,
+          totalAmount,
+          paymentId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
 
-      alert("Order placed successfully!");
+      setOrderSuccess(true); // ✅ Show success message
       setRestaurant("");
       setItems([]);
       setTotalAmount(0);
@@ -79,15 +91,41 @@ const Orders = () => {
   };
 
   return (
-    <div>
+    <div className="container">
       <h2>Place Order</h2>
-      <input type="text" placeholder="Restaurant Name" value={restaurant} onChange={(e) => setRestaurant(e.target.value)} />
-      <button onClick={() => setIsCheckout(true)}>Proceed to Payment</button>
 
-      {isCheckout && (
-        <Elements stripe={stripePromise}>
-          <CheckoutForm restaurant={restaurant} items={items} totalAmount={totalAmount} onSuccess={handlePaymentSuccess} />
-        </Elements>
+      {orderSuccess && (
+        <div className="alert alert-success mt-3">
+          🎉 Your order has been placed successfully!
+        </div>
+      )}
+
+      {!orderSuccess && (
+        <>
+          <input
+            type="text"
+            placeholder="Restaurant Name"
+            className="form-control my-2"
+            value={restaurant}
+            onChange={(e) => setRestaurant(e.target.value)}
+          />
+
+          {/* (Optional) Set totalAmount via form later */}
+          <button className="btn btn-primary my-2" onClick={() => setIsCheckout(true)}>
+            Proceed to Payment
+          </button>
+
+          {isCheckout && (
+            <Elements stripe={stripePromise}>
+              <CheckoutForm
+                restaurant={restaurant}
+                items={items}
+                totalAmount={totalAmount}
+                onSuccess={handlePaymentSuccess}
+              />
+            </Elements>
+          )}
+        </>
       )}
     </div>
   );
